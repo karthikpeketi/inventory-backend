@@ -3,7 +3,6 @@ package com.inventory.security;
 
 import com.inventory.security.jwt.AuthEntryPointJwt;
 import com.inventory.security.jwt.AuthTokenFilter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -37,9 +36,6 @@ import java.util.List;
 @EnableWebSecurity // Enables Spring Security support in the application
 @EnableMethodSecurity // Allows method-level security annotations (e.g., @PreAuthorize)
 public class SecurityConfig {
-
-    @Value("${cors.allowed-origins}")
-    private String[] allowedOrigins;
 
     // Dependencies injected by Spring using constructor-based injection
 
@@ -90,8 +86,8 @@ public class SecurityConfig {
     /**
      * Configures Cross-Origin Resource Sharing (CORS) to allow the frontend app (usually running on a different port) to call the API.
      * <p>
-     * - Allows requests from "http://localhost:3000" (React frontend)
-     * - Permits GET, POST, PUT, DELETE, and OPTIONS HTTP methods
+     * - Allows requests from "https://inventory-360.vercel.app" (Frontend application)
+     * - Permits GET, POST, PUT, DELETE, OPTIONS, and PATCH HTTP methods
      * - Accepts any HTTP header and credentials (cookies, auth headers)
      *
      * @return CORS configuration source for use by Spring Security
@@ -100,7 +96,8 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         // Create a new CORS configuration
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
+        // Hardcode the frontend origin to ensure it's allowed
+        configuration.setAllowedOrigins(Arrays.asList("https://inventory-360.vercel.app"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
