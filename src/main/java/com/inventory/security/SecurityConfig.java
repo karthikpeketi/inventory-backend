@@ -3,6 +3,7 @@ package com.inventory.security;
 
 import com.inventory.security.jwt.AuthEntryPointJwt;
 import com.inventory.security.jwt.AuthTokenFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -43,6 +44,11 @@ public class SecurityConfig {
     private final AuthEntryPointJwt unauthorizedHandler;
     // Filter to extract and validate JWT tokens from requests
     private final AuthTokenFilter authTokenFilter;
+    
+    // Inject CORS allowed origins from environment variables
+    @Value("${CORS_ALLOWED_ORIGINS:https://inventory-360.vercel.app}")
+    private String corsAllowedOrigins;
+    
     // Constructor for initializing dependencies used by this configuration
     public SecurityConfig(AuthEntryPointJwt unauthorizedHandler, AuthTokenFilter authTokenFilter) {
         this.unauthorizedHandler = unauthorizedHandler;
@@ -86,7 +92,7 @@ public class SecurityConfig {
     /**
      * Configures Cross-Origin Resource Sharing (CORS) to allow the frontend app (usually running on a different port) to call the API.
      * <p>
-     * - Allows requests from "https://inventory-360.vercel.app" (Frontend application)
+     * - Allows requests from configured origins in CORS_ALLOWED_ORIGINS environment variable
      * - Permits GET, POST, PUT, DELETE, OPTIONS, and PATCH HTTP methods
      * - Accepts any HTTP header and credentials (cookies, auth headers)
      *
@@ -96,8 +102,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         // Create a new CORS configuration
         CorsConfiguration configuration = new CorsConfiguration();
-        // Hardcode the frontend origin to ensure it's allowed
-        configuration.setAllowedOrigins(Arrays.asList("https://inventory-360.vercel.app"));
+        // Parse comma-separated origins from environment variable
+        List<String> allowedOrigins = Arrays.asList(corsAllowedOrigins.split(","));
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
