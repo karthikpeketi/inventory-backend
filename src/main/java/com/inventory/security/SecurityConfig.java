@@ -3,6 +3,7 @@ package com.inventory.security;
 
 import com.inventory.security.jwt.AuthEntryPointJwt;
 import com.inventory.security.jwt.AuthTokenFilter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -36,6 +37,9 @@ import java.util.List;
 @EnableWebSecurity // Enables Spring Security support in the application
 @EnableMethodSecurity // Allows method-level security annotations (e.g., @PreAuthorize)
 public class SecurityConfig {
+
+    @Value("${cors.allowed-origins}")
+    private String[] allowedOrigins;
 
     // Dependencies injected by Spring using constructor-based injection
 
@@ -96,7 +100,7 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         // Create a new CORS configuration
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("https://inventory-360.vercel.app"));
+        configuration.setAllowedOrigins(Arrays.asList(allowedOrigins));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
