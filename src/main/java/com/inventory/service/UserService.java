@@ -15,8 +15,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -48,9 +46,6 @@ public class UserService {
     private final ActivationTokenRepository activationTokenRepository;
     // Repository for OTPs
     private final OtpRepository otpRepository;
-    
-    @Autowired
-    private JavaMailSender mailSender;
     
     @Autowired
     private EmailService emailService;

@@ -5,3 +5,9 @@
 
 # Logs
 *.log
+*.env
+*env.example
+.env.local
+.env.test
+.env.development
+.env.production
