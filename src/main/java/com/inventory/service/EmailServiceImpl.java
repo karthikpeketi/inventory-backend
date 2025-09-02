@@ -1,19 +1,15 @@
 package com.inventory.service;
 
 import com.inventory.model.User;
-import jakarta.mail.MessagingException;
-import jakarta.mail.internet.MimeMessage;
+import com.sendgrid.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.mail.javamail.JavaMailSender;
-import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+
+import java.io.IOException;
 
 @Service
 public class EmailServiceImpl implements EmailService {
-
-    @Autowired
-    private JavaMailSender mailSender;
 
     @Autowired
     private EmailTemplateService emailTemplateService;
@@ -21,20 +17,37 @@ public class EmailServiceImpl implements EmailService {
     @Value("${frontend.url}")
     private String frontendUrl;
 
-    @Value("${spring.mail.username}")
+    @Value("${mail.sendgrid.api-key}")
+    private String sendGridApiKey;
+
+    @Value("${mail.from.address}")
     private String fromEmail;
 
-    private void sendEmail(String to, String subject, String htmlContent) {
+    @Value("${mail.from.name:Local Inventory}")
+    private String fromName;
+
+    @Override
+    public boolean sendEmail(String to, String subject, String htmlContent) {
+        // Build SendGrid Mail object
+        com.sendgrid.helpers.mail.objects.Email from = new com.sendgrid.helpers.mail.objects.Email(fromEmail, fromName);
+        com.sendgrid.helpers.mail.objects.Email toEmail = new com.sendgrid.helpers.mail.objects.Email(to);
+        com.sendgrid.helpers.mail.objects.Content content = new com.sendgrid.helpers.mail.objects.Content("text/html", htmlContent);
+        com.sendgrid.helpers.mail.Mail mail = new com.sendgrid.helpers.mail.Mail(from, subject, toEmail, content);
+
+        SendGrid sg = new SendGrid(sendGridApiKey);
+        Request request = new Request();
         try {
-            MimeMessage mimeMessage = mailSender.createMimeMessage();
-            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, "utf-8");
-            helper.setFrom(fromEmail);
-            helper.setTo(to);
-            helper.setSubject(subject);
-            helper.setText(htmlContent, true);
-            mailSender.send(mimeMessage);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Failed to send email", e);
+            request.setMethod(Method.POST);
+            request.setEndpoint("mail/send");
+            request.setBody(mail.build());
+            Response response = sg.api(request);
+            int statusCode = response.getStatusCode();
+            // Log for observability
+            System.out.println("[Email] To=" + to + ", status=" + statusCode);
+            return statusCode >= 200 && statusCode < 300;
+        } catch (IOException ex) {
+            System.err.println("[Email] Failed sending to " + to + ": " + ex.getMessage());
+            return false;
         }
     }
 
