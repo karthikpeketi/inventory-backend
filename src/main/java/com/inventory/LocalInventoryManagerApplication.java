@@ -14,8 +14,9 @@ public class LocalInventoryManagerApplication {
 		System.setProperty("DB_URL", dotenv.get("DB_URL"));
 		System.setProperty("DB_USER", dotenv.get("DB_USER"));
 		System.setProperty("DB_PASSWORD", dotenv.get("DB_PASSWORD"));
-		System.setProperty("MAIL_USERNAME", dotenv.get("MAIL_USERNAME"));
-		System.setProperty("MAIL_PASSWORD", dotenv.get("MAIL_PASSWORD"));
+		System.setProperty("MAIL_FROM_NAME", dotenv.get("MAIL_FROM_NAME"));
+		System.setProperty("MAIL_FROM_ADDRESS", dotenv.get("MAIL_FROM_ADDRESS"));
+		System.setProperty("SENDGRID_API_KEY", dotenv.get("SENDGRID_API_KEY"));
 		System.setProperty("CORS_ALLOWED_ORIGINS", dotenv.get("CORS_ALLOWED_ORIGINS"));
 		System.setProperty("FRONTEND_URL", dotenv.get("FRONTEND_URL"));
 		SpringApplication.run(LocalInventoryManagerApplication.class, args);
