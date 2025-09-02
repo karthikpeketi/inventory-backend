@@ -9,7 +9,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class LocalInventoryManagerApplication {
 
 	public static void main(String[] args) {
-		Dotenv dotenv = Dotenv.load();
+		Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
 		System.setProperty("JWT_SECRET", dotenv.get("JWT_SECRET"));
 		System.setProperty("DB_URL", dotenv.get("DB_URL"));
 		System.setProperty("DB_USER", dotenv.get("DB_USER"));
