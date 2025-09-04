@@ -34,6 +34,11 @@ public class EmailServiceImpl implements EmailService {
         com.sendgrid.helpers.mail.objects.Content content = new com.sendgrid.helpers.mail.objects.Content("text/html", htmlContent);
         com.sendgrid.helpers.mail.Mail mail = new com.sendgrid.helpers.mail.Mail(from, subject, toEmail, content);
 
+        if (sendGridApiKey == null || sendGridApiKey.isBlank()) {
+            System.err.println("[Email] Missing SENDGRID API key. Check SENDGRID_API_KEY environment variable.");
+            return false;
+        }
+
         SendGrid sg = new SendGrid(sendGridApiKey);
         Request request = new Request();
         try {
@@ -42,8 +47,10 @@ public class EmailServiceImpl implements EmailService {
             request.setBody(mail.build());
             Response response = sg.api(request);
             int statusCode = response.getStatusCode();
-            // Log for observability
-            System.out.println("[Email] To=" + to + ", status=" + statusCode);
+            String body = response.getBody();
+            String messageId = response.getHeaders() != null ? response.getHeaders().get("x-message-id") : null;
+            // Log for observability of SendGrid response
+            System.out.println("[Email] To=" + to + ", status=" + statusCode + ", messageId=" + messageId + ", body=" + body);
             return statusCode >= 200 && statusCode < 300;
         } catch (IOException ex) {
             System.err.println("[Email] Failed sending to " + to + ": " + ex.getMessage());
@@ -66,9 +73,9 @@ public class EmailServiceImpl implements EmailService {
     }
 
     @Override
-    public void sendOtpEmail(String email, String firstName, String otpCode, String purpose, int expiryMinutes) {
+    public boolean sendOtpEmail(String email, String firstName, String otpCode, String purpose, int expiryMinutes) {
         String emailBody = emailTemplateService.getOtpTemplate(firstName, otpCode, purpose, expiryMinutes);
-        sendEmail(email, "Your Verification Code", emailBody);
+        return sendEmail(email, "Your Verification Code", emailBody);
     }
 
     @Override

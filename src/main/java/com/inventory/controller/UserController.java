@@ -326,12 +326,16 @@ public class UserController {
     @PostMapping("/send-current-email-otp")
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<?> sendCurrentEmailOtp() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String username = auth.getName();
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
-        userService.sendCurrentEmailOtp(user.getId());
-        return ResponseEntity.ok(Map.of("message", "OTP sent to current email successfully"));
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            String username = auth.getName();
+            User user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+            userService.sendCurrentEmailOtp(user.getId());
+            return ResponseEntity.ok(Map.of("message", "OTP sent to current email successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
+        }
     }
 
     @PostMapping("/send-otp")

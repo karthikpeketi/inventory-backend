@@ -525,7 +525,10 @@ public class UserService {
 
     private void sendOtpEmail(String email, String otpCode, String firstName, String emailType) {
         String purpose = "current".equals(emailType) ? "CURRENT_EMAIL" : "NEW_EMAIL";
-        emailService.sendOtpEmail(email, firstName, otpCode, purpose, 5);
+        boolean sent = emailService.sendOtpEmail(email, firstName, otpCode, purpose, 5);
+        if (!sent) {
+            throw new RuntimeException("Failed to send OTP email. Please try again later.");
+        }
     }
 
     public boolean verifyCurrentEmailOtp(Integer userId, String email, String otpCode) {

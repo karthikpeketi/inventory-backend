@@ -5,5 +5,5 @@
 
 # Logs
 *.log
-.env
-.env.example
+.env.production
+.env.development
