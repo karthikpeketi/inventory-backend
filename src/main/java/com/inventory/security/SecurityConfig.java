@@ -49,7 +49,7 @@ public class SecurityConfig {
     private final AuthTokenFilter authTokenFilter;
     
     // Inject CORS allowed origins from environment variables
-    @Value("${CORS_ALLOWED_ORIGINS:https://inventory-frontend-production-9c9d.up.railway.app}")
+    @Value("${CORS_ALLOWED_ORIGINS:https://inventory-frontend-kappa-ten.vercel.app}")
     private String corsAllowedOrigins;
     
     // Constructor for initializing dependencies used by this configuration
