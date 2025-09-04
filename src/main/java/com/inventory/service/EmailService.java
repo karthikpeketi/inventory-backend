@@ -9,7 +9,7 @@ public interface EmailService {
     // Specific convenience methods used across the app
     void sendActivationEmail(User user, String token);
     void sendPasswordResetEmail(String email, String token);
-    void sendOtpEmail(String email, String firstName, String otpCode, String purpose, int expiryMinutes);
+    boolean sendOtpEmail(String email, String firstName, String otpCode, String purpose, int expiryMinutes);
     void sendAdminNotificationEmail(String to, String username, String fullName, String email);
     void sendAccountApprovalEmail(String to, String firstName);
     void sendAccountRejectionEmail(String to, String reason);
