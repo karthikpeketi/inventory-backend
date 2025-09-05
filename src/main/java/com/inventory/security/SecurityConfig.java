@@ -3,8 +3,6 @@ package com.inventory.security;
 
 import com.inventory.security.jwt.AuthEntryPointJwt;
 import com.inventory.security.jwt.AuthTokenFilter;
-import com.inventory.security.jwt.AuthEntryPointJwt;
-import com.inventory.security.jwt.AuthTokenFilter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -82,7 +80,7 @@ public class SecurityConfig {
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
                     .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                    .requestMatchers("/api/auth/**", "/login/**", "/api/auth/reset-password/**", "/api/auth/verify-reset-token", "/api/users/verify-activation-token", "/api/users/verify-activation-token/**", "/api/users/activate-account", "/api/users/check-username").permitAll()
+                    .requestMatchers("/api/auth/**", "/api/auth/reset-password/**", "/api/auth/verify-reset-token", "/api/users/verify-activation-token", "/api/users/verify-activation-token/**", "/api/users/activate-account", "/api/users/check-username").permitAll()
                 .requestMatchers("/api/products/**", "/api/categories/**").permitAll()
                 .anyRequest().authenticated()
             )
@@ -107,9 +105,7 @@ public class SecurityConfig {
         // Create a new CORS configuration
         CorsConfiguration configuration = new CorsConfiguration();
         // Parse comma-separated origins from environment variable
-        configuration.setAllowedOrigins(List.of(
-        "https://inventory-frontend-kappa-ten.vercel.app"
-    ));
+        configuration.setAllowedOrigins(Arrays.asList(corsAllowedOrigins.split(",")));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
