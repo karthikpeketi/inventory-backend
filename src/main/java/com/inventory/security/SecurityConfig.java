@@ -21,7 +21,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,8 @@ import java.util.List;
 @EnableWebSecurity // Enables Spring Security support in the application
 @EnableMethodSecurity // Allows method-level security annotations (e.g., @PreAuthorize)
 public class SecurityConfig {
+
+    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     // Dependencies injected by Spring using constructor-based injection
 
@@ -102,10 +105,15 @@ public class SecurityConfig {
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+        logger.info("Configuring CORS with allowed origins: {}", corsAllowedOrigins);
+        
         // Create a new CORS configuration
         CorsConfiguration configuration = new CorsConfiguration();
         // Parse comma-separated origins from environment variable
-        configuration.setAllowedOrigins(Arrays.asList(corsAllowedOrigins.split(",")));
+        List<String> allowedOrigins = Arrays.asList(corsAllowedOrigins.split(","));
+        logger.info("Parsed allowed origins: {}", allowedOrigins);
+        
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

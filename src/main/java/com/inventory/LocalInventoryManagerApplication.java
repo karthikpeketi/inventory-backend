@@ -18,21 +18,29 @@ public class LocalInventoryManagerApplication {
             profile = "development"; // Default to development
         }
 
-        // Construct the .env filename based on the profile
-        String envFileName = ".env." + profile;
-        logger.info("Loading environment variables from: {}", envFileName);
+        logger.info("Active profile: {}", profile);
 
-        // Load the appropriate .env file
-        Dotenv dotenv = Dotenv.configure()
-                .filename(envFileName)
-                .ignoreIfMissing()
-                .load();
+        // Only load .env files in development mode
+        if ("development".equals(profile)) {
+            // Construct the .env filename based on the profile
+            String envFileName = ".env." + profile;
+            logger.info("Loading environment variables from: {}", envFileName);
 
-        // Set system properties from .env file
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+            // Load the appropriate .env file
+            Dotenv dotenv = Dotenv.configure()
+                    .filename(envFileName)
+                    .ignoreIfMissing()
+                    .load();
 
-        logger.info("SPRING_PROFILES_ACTIVE: {}", dotenv.get("SPRING_PROFILES_ACTIVE"));
+            // Set system properties from .env file
+            dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
 
+            logger.info("SPRING_PROFILES_ACTIVE from .env: {}", dotenv.get("SPRING_PROFILES_ACTIVE"));
+        } else {
+            // In production, environment variables are already available from the system
+            logger.info("Production mode: Using system environment variables");
+            logger.info("CORS_ALLOWED_ORIGINS: {}", System.getenv("CORS_ALLOWED_ORIGINS"));
+        }
 
         SpringApplication.run(LocalInventoryManagerApplication.class, args);
     }
