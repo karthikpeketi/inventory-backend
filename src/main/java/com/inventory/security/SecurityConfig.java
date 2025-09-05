@@ -49,8 +49,8 @@ public class SecurityConfig {
     // Filter to extract and validate JWT tokens from requests
     private final AuthTokenFilter authTokenFilter;
     
-    // Inject CORS allowed origins from environment variables
-    @Value("${CORS_ALLOWED_ORIGINS:https://inventory-frontend-kappa-ten.vercel.app}")
+    // Inject CORS allowed origins from application properties
+    @Value("${cors.allowed-origins:https://inventory-frontend-kappa-ten.vercel.app}")
     private String corsAllowedOrigins;
     
     // Constructor for initializing dependencies used by this configuration
@@ -114,9 +114,11 @@ public class SecurityConfig {
         logger.info("Parsed allowed origins: {}", allowedOrigins);
         
         configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        configuration.setAllowedHeaders(List.of("*"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
+        configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
         
         // Map this config for all paths
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
