@@ -107,8 +107,9 @@ public class SecurityConfig {
         // Create a new CORS configuration
         CorsConfiguration configuration = new CorsConfiguration();
         // Parse comma-separated origins from environment variable
-        List<String> allowedOrigins = Arrays.asList(corsAllowedOrigins.split(","));
-        configuration.setAllowedOrigins(allowedOrigins);
+        configuration.setAllowedOrigins(List.of(
+        "https://inventory-frontend-kappa-ten.vercel.app"
+    ));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);
