@@ -41,7 +41,7 @@ import org.springframework.web.bind.annotation.RestController; // Marks class as
  */
 @RestController  // Marks this class as a REST Controller, so Spring can expose its methods as HTTP endpoints returning JSON
 @RequestMapping("/api/auth") // All endpoints in this controller will start with /api/auth in the path
-@CrossOrigin(origins = "*", maxAge = 3600)
+// @CrossOrigin removed - CORS handled by CorsFilter to avoid conflicts
 public class AuthController {
     
     // The service that handles all authentication business logic

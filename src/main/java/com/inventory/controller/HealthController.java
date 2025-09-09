@@ -13,10 +13,10 @@ import java.util.Map;
  */
 @RestController
 @RequestMapping("/api")
-@CrossOrigin(origins = "*", maxAge = 3600)
+// @CrossOrigin removed - CORS handled by CorsFilter to avoid conflicts
 public class HealthController {
 
-    @Value("${CORS_ALLOWED_ORIGINS:https://inventory-frontend-kappa-ten.vercel.app}")
+    @Value("${cors.allowed-origins:https://inventory-frontend-kappa-ten.vercel.app}")
     private String corsAllowedOrigins;
 
     @GetMapping("/health")
@@ -29,12 +29,5 @@ public class HealthController {
         return ResponseEntity.ok(response);
     }
 
-    @RequestMapping(value = "/health", method = RequestMethod.OPTIONS)
-    public ResponseEntity<Void> healthOptions() {
-        return ResponseEntity.ok()
-                .header("Access-Control-Allow-Origin", "*")
-                .header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
-                .header("Access-Control-Allow-Headers", "*")
-                .build();
-    }
+    // OPTIONS method removed - handled by CorsFilter
 }
