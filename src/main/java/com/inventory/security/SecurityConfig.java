@@ -2,7 +2,6 @@ package com.inventory.security;
 
 import com.inventory.security.jwt.AuthEntryPointJwt;
 import com.inventory.security.jwt.AuthTokenFilter;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -17,21 +16,16 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * SecurityConfig
  *
  * <p>
  * This Java configuration class sets up most aspects of Spring Security for the API.
- * It covers: authentication, authorization rules, JWT filtering, session management, password encoding, and CORS setup.
+ * It covers: authentication, authorization rules, JWT filtering, session management, and password encoding.
+ * CORS is handled by the separate CorsFilter component for better control.
  * </p>
  */
 @Configuration // Indicates this is a configuration class for the Spring context
@@ -48,10 +42,6 @@ public class SecurityConfig {
     // Filter to extract and validate JWT tokens from requests
     private final AuthTokenFilter authTokenFilter;
     
-    // Inject CORS allowed origins from application properties
-    @Value("${cors.allowed-origins:https://inventory-frontend-kappa-ten.vercel.app}")
-    private String corsAllowedOrigins;
-    
     // Constructor for initializing dependencies used by this configuration
     public SecurityConfig(AuthEntryPointJwt unauthorizedHandler, AuthTokenFilter authTokenFilter) {
         this.unauthorizedHandler = unauthorizedHandler;
@@ -62,7 +52,7 @@ public class SecurityConfig {
      * Defines the application-wide Spring Security filter chain and rules.
      * <p>
      * Key configuration points:
-     * - CORS: Allows cross-origin JS apps to communicate with the API
+     * - CORS: Disabled in Spring Security (handled by separate CorsFilter component)
      * - CSRF: Disabled (not needed for stateless APIs)
      * - Exception handling: Customizes unauthorized response logic
      * - Session management: Enforces stateless (no HTTP session; via tokens only)
@@ -78,7 +68,7 @@ public class SecurityConfig {
         logger.info("Configuring Spring Security filter chain");
         
         http
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .cors(AbstractHttpConfigurer::disable) // Disable Spring Security CORS - handled by CorsFilter
             .csrf(AbstractHttpConfigurer::disable)
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -95,37 +85,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    /**
-     * Configures Cross-Origin Resource Sharing (CORS) to allow the frontend app (usually running on a different port) to call the API.
-     * <p>
-     * - Allows requests from configured origins in CORS_ALLOWED_ORIGINS environment variable
-     * - Permits GET, POST, PUT, DELETE, OPTIONS, and PATCH HTTP methods
-     * - Accepts any HTTP header and credentials (cookies, auth headers)
-     *
-     * @return CORS configuration source for use by Spring Security
-     */
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        logger.info("Configuring CORS with allowed origins: {}", corsAllowedOrigins);
-        
-        // Create a new CORS configuration
-        CorsConfiguration configuration = new CorsConfiguration();
-        // Parse comma-separated origins from environment variable
-        List<String> allowedOrigins = Arrays.asList(corsAllowedOrigins.split(","));
-        logger.info("Parsed allowed origins: {}", allowedOrigins);
-        
-        configuration.setAllowedOrigins(allowedOrigins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH", "HEAD"));
-        configuration.setAllowedHeaders(Arrays.asList("*"));
-        configuration.setAllowCredentials(true);
-        configuration.setExposedHeaders(Arrays.asList("Authorization", "Content-Type", "X-Requested-With", "Accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        configuration.setMaxAge(3600L); // Cache preflight response for 1 hour
-        
-        // Map this config for all paths
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+
 
     /**
      * Provides the authentication manager used by Spring Security for login and authentication logic.
