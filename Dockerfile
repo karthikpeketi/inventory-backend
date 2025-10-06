@@ -1,31 +1,31 @@
-# ========================
 # Stage 1: Build the JAR
-# ========================
-FROM maven:3.9.4-openjdk-17 AS build
+FROM maven:3-eclipse-temurin-17 AS build
 
-# Set working directory
+# Use a dedicated workdir
 WORKDIR /app
 
-# Copy project files
-COPY pom.xml .
+# Copy only the Maven descriptor first to leverage layer caching for dependencies
+COPY pom.xml ./
+
+# Pre-fetch dependencies (faster incremental builds)
+RUN mvn -B -q -DskipTests=true dependency:go-offline
+
+# Copy source and build
 COPY src ./src
+RUN mvn -B -DskipTests=true clean package
 
-# Build the project (skip tests to avoid failures)
-RUN mvn clean package -DskipTests
-
-# ========================
-# Stage 2: Run the JAR
-# ========================
-FROM eclipse-temurin:17-jdk-jammy
-
-# Set working directory
+# Stage 2: Runtime image
+FROM eclipse-temurin:17-jre-jammy
 WORKDIR /app
 
-# Copy the built JAR from the build stage
-COPY --from=build /app/target/*.jar app.jar
+# Copy the built jar (rename to app.jar). The wildcard handles version changes.
+COPY --from=build /app/target/*.jar /app/app.jar
 
-# Expose the port (Spring Boot default 8080)
+# Render will set PORT; Spring Boot uses server.port=${PORT:8080}
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Allow custom JVM options via JAVA_OPTS
+ENV JAVA_OPTS=""
+
+# Start the application
+ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar /app/app.jar"]
