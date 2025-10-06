@@ -1,1 +1,0 @@
-web: java -jar target/local-inventory-manager-0.0.1-SNAPSHOT.jar
